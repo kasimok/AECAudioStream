@@ -1,4 +1,4 @@
-# ``AECAudioStream``
+# AECAudioStream
 
 Automatic Echo Cancellation implemented with VoiceProcessingIO audio unit
 
