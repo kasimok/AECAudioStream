@@ -226,7 +226,7 @@ public class AECAudioStream {
       throw AECAudioStreamError.osStatusError(status: status)
     }
     
-    var enableOutput: UInt32 = 1
+    var enableOutput: UInt32 = enableRendererCallback ? 1 : 0
     status = AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, bus_0_output, &enableOutput, UInt32(MemoryLayout.size(ofValue: enableOutput)))
     guard status == noErr else {
       AudioComponentInstanceDispose(audioUnit)
