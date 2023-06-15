@@ -40,6 +40,8 @@ public class AECAudioStream {
   
   private(set) var capturedFrameHandler: ((AVAudioPCMBuffer) -> Void)?
   
+  private(set) var running = false
+  
   /**
    Initializes an instance of an audio stream object with the specified sample rate.
    
@@ -79,6 +81,7 @@ public class AECAudioStream {
         try startGraph()
         try startAudioUnit()
         self.capturedFrameHandler = {continuation.yield($0)}
+        self.running = true
       } catch {
         continuation.finish(throwing: error)
       }
@@ -103,6 +106,7 @@ public class AECAudioStream {
     try startGraph()
     try startAudioUnit()
     self.capturedFrameHandler = audioBufferHandler
+    self.running = true
   }
   
   /**
@@ -128,6 +132,7 @@ public class AECAudioStream {
       logger.error("DisposeAUGraph failed")
       throw AECAudioStreamError.osStatusError(status: status)
     }
+    self.running = false
   }
   
   private func toggleAudioCancellation(enable: Bool) throws {
@@ -281,6 +286,10 @@ private func kInputCallback(inRefCon:UnsafeMutableRawPointer,
                             ioData:UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
   
   let audioMgr = unsafeBitCast(inRefCon, to: AECAudioStream.self)
+  
+  guard audioMgr.running else {
+    return noErr
+  }
   
   let audioBuffer = AudioBuffer(mNumberChannels: 1, mDataByteSize: 0, mData: nil)
   
